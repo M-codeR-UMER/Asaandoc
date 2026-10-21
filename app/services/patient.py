@@ -35,20 +35,19 @@ class PatientService(BaseService):
         )
         patient = result.scalar()
 
-        if not patient or not password_context.verify(password, patient.password_hash):
+        if patient is None or not password_context.verify(password, patient.password_hash):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Patient email or password is incorrect",
             )
 
         # Don't include sensitive information here as we had done it below: -
-        token = generate_access_token(
-            data={
+        token = generate_access_token(data={
                 "user": {
                     "name": patient.name,
-                    "email": patient.email,  # we will include user id here not email
+                    "id": str(patient.id),  # we will include user id here not email(Included)
+                    # we convert it to string in order to prevent JSON Object serialization error.
                 }
-            }
-        )
+            })
 
         return token

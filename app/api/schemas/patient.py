@@ -17,7 +17,7 @@ class PatientRead(BasePatient):
     # email, name will be shown.
     pass
 
-
+# For the purpose of handling error
 class Patientform(BaseModel):
     age: int | None
     gender: Gender | None

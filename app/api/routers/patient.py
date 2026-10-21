@@ -1,12 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.api.dependencies import PatientServiceDep
+from app.api.dependencies import PatientServiceDep, get_access_token
 from app.api.schemas.patient import PatientCreate, PatientRead
-from app.core.security import oauth2_scheme
-from app.utils import decode_access_token
+from app.database.redis import add_jti_to_blacklist
 
 router = APIRouter(prefix="/patient", tags=["Patient"])
 
@@ -14,7 +13,7 @@ router = APIRouter(prefix="/patient", tags=["Patient"])
 ### Register a Patient
 @router.post("/signup", response_model=PatientRead, status_code=status.HTTP_201_CREATED)
 async def register_patient(
-    patient: PatientCreate,  # the Request model (jason obj)
+    patient: PatientCreate,  # the Request model (jason obj) it do validation here
     service: PatientServiceDep,
 ):
     return await service.add(patient)
@@ -27,7 +26,7 @@ async def login_patient(
         OAuth2PasswordRequestForm, Depends()
     ],  # the request body (jason obj)
     service: PatientServiceDep,
-):
+):  
     token = await service.token(request_form.username, request_form.password)
     return {
         "access_token": token,
@@ -35,23 +34,11 @@ async def login_patient(
     }
 
 
-### Get Dashboard
-@router.get("/dashboard")
-def Dashboard(token: Annotated[str, Depends(oauth2_scheme)]):
-    # return {"Authorized": True}
-    data = decode_access_token(token=token)
-
-    if data is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=" Invalid Access Token"
-        )
-
-    return {
-        "detail" : "Successfully Authenticated !"
-    }
-
 ### Logout
+# we need a token_data from access_token_dependency for putting it label to id and than add it to redis database.
 @router.post("/logout")
-async def logout_patient():
-    pass
+async def logout_patient(
+    token_data: Annotated[dict, Depends(get_access_token)],
+):
+    await add_jti_to_blacklist(token_data["jti"])
+    return {"detail": "Successfully logged out"}

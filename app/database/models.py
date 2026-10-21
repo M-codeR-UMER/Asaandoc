@@ -34,7 +34,6 @@ class Doctor(SQLModel, table=True):
     gender: Gender | None = Field(default=None)
     marital_status: MaritalStatus | None = Field(default=None)
 
-
 class Patient(SQLModel, table=True):
     __tablename__ = "patient"
 

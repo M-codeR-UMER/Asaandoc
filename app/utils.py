@@ -1,15 +1,20 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from uuid import uuid4
 
 import jwt
 
 from app.config import security_settings
 
 
-def generate_access_token(data: dict, expiray: timedelta = timedelta(days=1)) -> str:
+def generate_access_token(
+    data: dict,
+    expiray: timedelta = timedelta(days=1),
+) -> str:
     return jwt.encode(
         payload={
-            "data": data,
-            "exp": datetime.now() + expiray,
+            **data, # Unpacking a dict
+            "jti":uuid4().hex, 
+            "exp": datetime.now(timezone.utc) + expiray,
         },
         algorithm=security_settings.JWT_ALGORITHM,
         key=security_settings.JWT_SECRET,

@@ -13,6 +13,9 @@ class DatabaseSettings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
     
+    REDIS_HOST: str
+    REDIS_PORT: int
+    
     model_config =_base_config
     
     @property
@@ -26,4 +29,4 @@ class Security_settings(BaseSettings):
     model_config= _base_config
 
 db_settings = DatabaseSettings() #type: ignore  
-security_settings = Security_settings()  #type: ignore w
+security_settings = Security_settings()  #type: ignore

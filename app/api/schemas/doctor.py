@@ -17,7 +17,7 @@ class DoctorRead(BaseDoctor):
     # email, name will be shown.
     pass
 
-
+# For the purpose of handling error
 class DoctorForm(BaseModel):
     age: int | None
     gender: Gender | None
