@@ -9,7 +9,7 @@ _token_blacklist = Redis(
 )
 
 async def add_jti_to_blacklist(jti: str):
-    await _token_blacklist.set(jti, "blacklisted")  # Set the JTI in Redis with an expiration time of 1 hour
+    await _token_blacklist.set(jti, "blacklisted", ex=3600)  # Set the JTI in Redis with an expiration time of 1 hour
     
     
 async def is_jti_blacklisted(jti: str) -> bool:

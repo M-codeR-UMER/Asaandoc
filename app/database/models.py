@@ -26,7 +26,7 @@ class Doctor(SQLModel, table=True):
     __tablename__ = "doctor"
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    email: EmailStr
+    email: EmailStr = Field(unique= True, index=True)
     password_hash: str
     name: str | None = Field(min_length=1, max_length=32)
     # phone_number: PhoneNumber | None = Field(default= None)
@@ -39,7 +39,7 @@ class Patient(SQLModel, table=True):
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str | None = Field(min_length=1, max_length=32)
-    email: EmailStr 
+    email: EmailStr = Field(unique= True, index=True)
     password_hash: str
     # phone_number: PhoneNumber | None = Field(default= None)
     age: int | None = Field(default=None, ge=0, le=120)

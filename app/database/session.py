@@ -3,10 +3,13 @@ from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
 from app.config import db_settings
 
+print("Connecting to DB:", db_settings.POSTGRES_URL) # Check the terminal output!
+
 # Creating a database engine to connect to database 
 engine = create_async_engine(
     url= db_settings.POSTGRES_URL,
-    echo = True 
+    echo = True,
+    connect_args={"ssl": False}
 )
 
 async def create_db_tables():
