@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -34,7 +35,15 @@ async def get_logged_in_patient(
     token_data: Annotated[dict, Depends(get_access_token)],
     session: SessionDep,
 ):
-    return await session.get(Patient, token_data["data"]["user"]["id"])  # Error
+    patient = await session.get(Patient, UUID(token_data["user"]["id"]))  # Error
+
+    if patient is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Patient not found",
+        )
+
+    return patient
 
 
 # Patient Service Getter
