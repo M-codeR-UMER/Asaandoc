@@ -26,7 +26,7 @@ async def login_patient(
         OAuth2PasswordRequestForm, Depends()
     ],  # the request body (jason obj)
     service: PatientServiceDep,
-):  
+):
     token = await service.token(request_form.username, request_form.password)
     return {
         "access_token": token,
@@ -40,5 +40,7 @@ async def login_patient(
 async def logout_patient(
     token_data: Annotated[dict, Depends(get_access_token)],
 ):
-    await add_jti_to_blacklist(token_data["jti"])
+    print("token_data", token_data)
+    await add_jti_to_blacklist(token_data["jti"], token_data["exp"])
     return {"detail": "Successfully logged out"}
+    
