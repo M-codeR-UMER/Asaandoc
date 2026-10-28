@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.api.dependencies import PatientServiceDep, SessionDep, get_access_token
+from app.api.dependencies import PatientServiceDep, SessionDep, get_access_token_patient
 from app.api.schemas.patient import PatientCreate, PatientRead
 from app.core.security import oauth2_scheme_patient
 from app.database.models import Patient
@@ -40,7 +40,7 @@ async def login_patient(
 # we need a token_data from access_token_dependency for putting it label to id and than add it to redis database.
 @router.post("/logout")
 async def logout_patient(
-    token_data: Annotated[dict, Depends(get_access_token)],
+    token_data: Annotated[dict, Depends(get_access_token_patient)],
 ):
     await add_jti_to_blacklist(token_data["jti"], token_data["exp"])
     return {"detail": "Successfully logged out"}

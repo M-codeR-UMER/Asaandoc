@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.api.dependencies import DoctorServiceDep, SessionDep
+from app.api.dependencies import DoctorServiceDep, SessionDep, get_access_token_doctor
 from app.api.schemas.doctor import DoctorCreate, DoctorRead
 from app.core.security import oauth2_scheme_doctor
 from app.database.models import Doctor as DoctorModel
@@ -42,7 +42,7 @@ async def login_doctor(
 ### Logout
 @router.post("/logout")
 async def logout_doctor(
-    token_data: Annotated[dict, Depends(oauth2_scheme_doctor)]
+    token_data: Annotated[dict, Depends(get_access_token_doctor)]
 ):
     await add_jti_to_blacklist(token_data["jti"], token_data["exp"])
     return {"detail": "Successfully logged out"}

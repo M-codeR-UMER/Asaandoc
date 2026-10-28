@@ -18,7 +18,7 @@ SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 
 # Patient Access token data dep
-async def get_access_token(token: Annotated[str, Depends(oauth2_scheme_patient)]):
+async def get_access_token_patient(token: Annotated[str, Depends(oauth2_scheme_patient)]):
     data = decode_access_token(token=token)
 
     # Validating the token
@@ -33,7 +33,7 @@ async def get_access_token(token: Annotated[str, Depends(oauth2_scheme_patient)]
 
 # Logged In Patient Dep (Current Patient Dep)
 async def get_logged_in_patient(
-    token_data: Annotated[dict, Depends(get_access_token)],
+    token_data: Annotated[dict, Depends(get_access_token_patient)],
     session: SessionDep,
 ):
     patient = await session.get(Patient, UUID(token_data["user"]["id"]))  # Error
@@ -50,7 +50,7 @@ async def get_logged_in_patient(
 PatientDep = Annotated[Patient, Depends(get_logged_in_patient)]
 
 # Doctor Access token data dep
-async def get_access_token(token: Annotated[str, Depends(oauth2_scheme_doctor)]):
+async def get_access_token_doctor(token: Annotated[str, Depends(oauth2_scheme_doctor)]):
     data = decode_access_token(token=token)
 
     # Validating the token
@@ -65,7 +65,7 @@ async def get_access_token(token: Annotated[str, Depends(oauth2_scheme_doctor)])
 
 # Logged In Doctor Dep (Current Patient Dep)
 async def get_logged_in_doctor(
-    token_data: Annotated[dict, Depends(get_access_token)],
+    token_data: Annotated[dict, Depends(get_access_token_doctor)],
     session: SessionDep,
 ):
     doctor = await session.get(DoctorModel, UUID(token_data["user"]["id"]))  # Error
