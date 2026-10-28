@@ -15,7 +15,7 @@ async def create_db_tables():
         from .models import Patient, Doctor # noqa: F401
         await connection.run_sync(SQLModel.metadata.create_all)
 
-# Sessiions to intreact with database
+# Sessions to intreact with database
 async def get_session():
     async_session = sessionmaker(
         class_=AsyncSession,

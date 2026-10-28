@@ -4,7 +4,8 @@ from uuid import UUID
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import oauth2_scheme
+from app.core.security import oauth2_scheme_doctor, oauth2_scheme_patient
+from app.database.models import Doctor as DoctorModel
 from app.database.models import Patient
 from app.database.redis import is_jti_blacklisted
 from app.database.session import get_session
@@ -16,8 +17,8 @@ from app.utils import decode_access_token
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 
-# Access token data dep
-async def get_access_token(token: Annotated[str, Depends(oauth2_scheme)]):
+# Patient Access token data dep
+async def get_access_token(token: Annotated[str, Depends(oauth2_scheme_patient)]):
     data = decode_access_token(token=token)
 
     # Validating the token
@@ -30,7 +31,7 @@ async def get_access_token(token: Annotated[str, Depends(oauth2_scheme)]):
     return data
 
 
-# Logged In Patient Dep
+# Logged In Patient Dep (Current Patient Dep)
 async def get_logged_in_patient(
     token_data: Annotated[dict, Depends(get_access_token)],
     session: SessionDep,
@@ -45,6 +46,40 @@ async def get_logged_in_patient(
 
     return patient
 
+# Current Patient Dep
+PatientDep = Annotated[Patient, Depends(get_logged_in_patient)]
+
+# Doctor Access token data dep
+async def get_access_token(token: Annotated[str, Depends(oauth2_scheme_doctor)]):
+    data = decode_access_token(token=token)
+
+    # Validating the token
+    if data is None or await is_jti_blacklisted(data["jti"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=" Invalid Access Token",
+        )
+
+    return data
+
+
+# Logged In Doctor Dep (Current Patient Dep)
+async def get_logged_in_doctor(
+    token_data: Annotated[dict, Depends(get_access_token)],
+    session: SessionDep,
+):
+    doctor = await session.get(DoctorModel, UUID(token_data["user"]["id"]))  # Error
+
+    if doctor is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Doctor not found",
+        )
+
+    return doctor
+
+# Current Doctor Dep
+DoctorDep = Annotated[DoctorModel, Depends(get_logged_in_doctor)]
 
 # Patient Service Getter
 def get_patient_service(session: SessionDep):
@@ -61,6 +96,3 @@ PatientServiceDep = Annotated[PatientService, Depends(get_patient_service)]
 
 # Doctor Service Dep
 DoctorServiceDep = Annotated[DoctorService, Depends(get_doctor_service)]
-
-# Current Patient Dep
-PatientDep = Annotated[Patient, Depends(get_logged_in_patient)]

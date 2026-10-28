@@ -5,20 +5,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.schemas.patient import PatientCreate
 from app.database.models import Patient
-from app.database.models import Patient as patientmodel
 from app.utils import generate_access_token
 
 from .base import BaseService
 
 password_context = CryptContext(schemes="bcrypt")  # for hashing password
 
-
 class PatientService(BaseService):
     def __init__(self, session: AsyncSession):
-        super().__init__(patientmodel, session)  # type: ignore
+        super().__init__(Patient, session)  # type: ignore
 
-    async def add(self, credentials: PatientCreate) -> patientmodel:
-        new_patient = patientmodel(
+    async def add(self, credentials: PatientCreate) -> Patient:
+        new_patient = Patient(
             **credentials.model_dump(exclude=["password"], exclude_none=True),
             # Hashed Password
             password_hash=password_context.hash(credentials.password),
@@ -33,7 +31,7 @@ class PatientService(BaseService):
                 Patient.email == email
             )  # Custom Sql query with SQLAlchemy
         )
-        patient = result.scalar()
+        patient = result.scalar_one_or_none()
 
         if patient is None or not password_context.verify(password, patient.password_hash):
             raise HTTPException(
@@ -42,7 +40,8 @@ class PatientService(BaseService):
             )
 
         # Don't include sensitive information here as we had done it below: -
-        token = generate_access_token(data={
+        token = generate_access_token(
+            data={
                 "user": {
                     "name": patient.name,
                     "id": str(patient.id),  # we will include user id here not email(Included)
