@@ -37,17 +37,15 @@ class DoctorService(BaseService):
         ):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Patient email or password is incorrect",
+                detail="Doctor email or password is incorrect",
             )
 
         token = generate_access_token(
             data={
                 "user": {
                     "name": doctor.name,
-                    "id": str(
-                        doctor.id
-                    ),  # we will include user id here not email(Included)
-                    # we convert it to string in order to prevent JSON Object serialization error.
+                    "id": str(doctor.id), # we will include user id here not email(Included) # we convert it to string in order to prevent JSON Object serialization error.
+                    "role": "doctor",
                 }
             }
         )

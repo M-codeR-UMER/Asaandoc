@@ -44,8 +44,8 @@ class PatientService(BaseService):
             data={
                 "user": {
                     "name": patient.name,
-                    "id": str(patient.id),  # we will include user id here not email(Included)
-                    # we convert it to string in order to prevent JSON Object serialization error.
+                    "id": str(patient.id),  # we will include user id here not email(Included) # we convert it to string in order to prevent JSON Object serialization error.
+                    "role": "patient",
                 }
             })
 
