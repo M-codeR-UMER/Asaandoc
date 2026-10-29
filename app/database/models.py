@@ -10,7 +10,6 @@ from sqlmodel import Field, SQLModel
 class MaritalStatus(str, Enum):  # Enum is used for validations.
     SINGLE = "Single"
     MARRIED = "Married"
-    UNMARRIED = "Unmarried"
     DIVORCED = "Divorced"
     WIDOWED = "Widow"
     OTHERS = "Others"

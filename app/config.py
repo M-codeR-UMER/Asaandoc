@@ -28,5 +28,16 @@ class Security_settings(BaseSettings):
 
     model_config= _base_config
 
+class Notification_settings(BaseSettings):
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM_NAME: str
+    MAIL_FROM: str
+    MAIL_SERVER: str
+    MAIL_PORT: int
+
+    model_config= _base_config
+    
 db_settings = DatabaseSettings() #type: ignore  
 security_settings = Security_settings()  #type: ignore
+notification_settings = Notification_settings() #type: ignore

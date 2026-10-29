@@ -32,7 +32,7 @@ async def login_patient(
     token = await service.token(request_form.username, request_form.password)
     return {
         "access_token": token,
-        "type": "jwt",
+        "token_type": "bearer",
     }
 
 

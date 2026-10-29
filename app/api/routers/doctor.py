@@ -35,7 +35,7 @@ async def login_doctor(
 
     return {
         "access_token": token,
-        "type": "jwt",
+        "token_type": "bearer",
     }
 
 

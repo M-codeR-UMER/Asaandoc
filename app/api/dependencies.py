@@ -36,7 +36,7 @@ async def get_logged_in_patient(
     token_data: Annotated[dict, Depends(get_access_token_patient)],
     session: SessionDep,
 ):
-    patient = await session.get(Patient, UUID(token_data["user"]["id"]))  # Error
+    patient = await session.get(Patient, UUID(token_data["user"]["id"]))
 
     if patient is None:
         raise HTTPException(
