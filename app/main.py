@@ -1,14 +1,14 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from scalar_fastapi import get_scalar_api_reference
 
 from app.api.router import master_router
-from app.database.session import create_db_tables
+from app.config import security_settings
 
 @asynccontextmanager
 async def lifespan_handler(app: FastAPI):
-    await create_db_tables()
     yield
 
 # This is markdown description for the Api documentation.Remember this is markdown description.
@@ -42,8 +42,21 @@ app = FastAPI(
     }
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=security_settings.FRONTEND_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Add all endpoints | routers
 app.include_router(master_router)
+
+
+@app.get("/health", tags=["Health"])
+async def health_check():
+    return {"status": "ok"}
 
 # Scaler APi documentation
 @app.get("/scalar", include_in_schema=False)
